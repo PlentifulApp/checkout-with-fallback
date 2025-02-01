@@ -1,0 +1,34 @@
+name: 'Checkout with Fallback'
+description: 'Checks out a branch if it exists; otherwise, checks out the default branch.'
+inputs:
+  ref-if-exists:
+    description: 'The branch name to check out if it exists.'
+    required: true
+  ref-fallback:
+    description: 'The branch name to check out if ref-if-exists does not exist. Defaults to the repository\'s default branch if not specified.'
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - name: Check if ref-if-exists exists
+      id: check-branch
+      run: |
+        if git show-ref --verify --quiet refs/heads/${{ inputs.ref-if-exists }}; then
+          echo "Branch exists: ${{ inputs.ref-if-exists }}"
+          echo "branch=${{ inputs.ref-if-exists }}" >> $GITHUB_OUTPUT
+        else
+          echo "Branch does not exist: ${{ inputs.ref-if-exists }}"
+          if [ -n "${{ inputs.ref-fallback }}" ]; then
+            echo "Using fallback branch: ${{ inputs.ref-fallback }}"
+            echo "branch=${{ inputs.ref-fallback }}" >> $GITHUB_OUTPUT
+          else
+            echo "Using default branch"
+            echo "branch=" >> $GITHUB_OUTPUT
+          fi
+        fi
+    - name: Checkout the determined branch
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ steps.check-branch.outputs.branch }}
+        # Pass through all other inputs
+        ${{ toJson(inputs) }}
