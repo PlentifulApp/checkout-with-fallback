@@ -7,6 +7,12 @@ inputs:
   ref-fallback:
     description: "The branch name to check out if ref-if-exists does not exist. Defaults to the repository's default branch if not specified."
     required: false
+  repository:
+    description: 'The repository to check out. Passed without changes to action/checkout.'
+    required: true
+  path:
+    description: 'The path to save the checked out files. Passed without changes to action/checkout.'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -31,5 +37,3 @@ runs:
       uses: actions/checkout@v4
       with:
         ref: ${{ steps.check-branch.outputs.branch }}
-        # Pass through all other inputs
-        ${{ toJson(inputs) }}
