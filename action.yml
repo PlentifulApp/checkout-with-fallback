@@ -18,7 +18,7 @@ inputs:
     required: true
   path:
     description: The path to save the checked out files. Passed without changes to actions/checkout.
-    required: true
+    required: false
   sparse-checkout:
     description: Whether to use sparse checkout. Passed without changes to actions/checkout.
     required: false
