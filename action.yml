@@ -12,6 +12,7 @@ runs:
   steps:
     - name: Check if ref-if-exists exists
       id: check-branch
+      shell: bash
       run: |
         if git show-ref --verify --quiet refs/heads/${{ inputs.ref-if-exists }}; then
           echo "Branch exists: ${{ inputs.ref-if-exists }}"
