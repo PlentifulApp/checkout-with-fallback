@@ -36,4 +36,6 @@ runs:
     - name: Checkout the determined branch
       uses: actions/checkout@v4
       with:
-        ref: ${{ steps.check-branch.outputs.branch }}
+        ref: '${{ steps.check-branch.outputs.branch }}'
+        repository: '${{ inputs.repository }}'
+        path: '${{ inputs.path }}'
