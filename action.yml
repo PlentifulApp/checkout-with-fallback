@@ -1,35 +1,39 @@
-name: 'Checkout with Fallback'
-description: 'Checks out a branch if it exists; otherwise, checks out the default branch.'
+name: Checkout with Fallback
+description: Checks out a branch if it exists; otherwise, checks out the default branch.
 inputs:
-  token:
-    description: 'The GitHub token to use for authentication. Used for querying branches and for actions/checkout.'
-    required: true
-  repository:
-    description: 'The repository to check out. Passed without changes to actions/checkout.'
-    required: true
-  path:
-    description: 'The path to save the checked out files. Passed without changes to actions/checkout.'
-    required: true
+  # Novel inputs
   ref-if-exists:
-    description: 'The branch name to check out if it exists.'
+    description: The branch name to check out if it exists.
     required: true
   ref-fallback:
-    description: "The branch name to check out if ref-if-exists does not exist. Defaults to the repository's default branch if not specified."
+    description: The branch name to check out if ref-if-exists does not exist. Defaults to the default branch of the repo if not specified.
     required: false
+
+  # Passthrough inputs to actions/checkout
+  token:
+    description: The GitHub token to use for authentication. Used for querying branches and for actions/checkout.
+    required: true
+  repository:
+    description: The repository to check out. Passed without changes to actions/checkout.
+    required: true
+  path:
+    description: The path to save the checked out files. Passed without changes to actions/checkout.
+    required: true
   sparse-checkout:
-    description: 'Whether to use sparse checkout. Passed without changes to actions/checkout.'
+    description: Whether to use sparse checkout. Passed without changes to actions/checkout.
     required: false
   sparse-checkout-cone-mode:
-    description: 'Whether to use sparse checkout in cone mode. Passed without changes to actions/checkout.'
+    description: Whether to use sparse checkout in cone mode. Passed without changes to actions/checkout.
     required: false
+
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - name: Check if ref-if-exists exists
       id: check-branch
       shell: bash
       run: |
-        if git ls-remote --exit-code --heads 'https://x-access-token:${{ inputs.token }}@github.com/${{ inputs.repository }}.git' '${{ inputs.ref-if-exists }}'; then
+        if git ls-remote --exit-code --heads https://x-access-token:${{ inputs.token }}@github.com/${{ inputs.repository }}.git ${{ inputs.ref-if-exists }}; then
           echo "Branch exists: ${{ inputs.ref-if-exists }}"
           echo "branch=${{ inputs.ref-if-exists }}" >> $GITHUB_OUTPUT
         else
@@ -38,17 +42,18 @@ runs:
             echo "Using fallback branch: ${{ inputs.ref-fallback }}"
             echo "branch=${{ inputs.ref-fallback }}" >> $GITHUB_OUTPUT
           else
-            default_branch="$(git ls-remote --symref 'https://x-access-token:${{ inputs.token }}@github.com/${{ inputs.repository }}.git' HEAD | awk '/^ref:/ { print $2 }' | sed 's|refs/heads/||')"
+            default_branch="$(git ls-remote --symref https://x-access-token:${{ inputs.token }}@github.com/${{ inputs.repository }}.git HEAD | awk '/^ref:/ { print $2 }' | sed 's|refs/heads/||')"
             echo "Using default branch: $default_branch"
             echo "branch=$default_branch" >> $GITHUB_OUTPUT
           fi
         fi
+
     - name: Checkout the determined branch
       uses: actions/checkout@v4
       with:
-        token: '${{ inputs.token }}'
-        ref: '${{ steps.check-branch.outputs.branch }}'
-        repository: '${{ inputs.repository }}'
-        path: '${{ inputs.path }}'
-        sparse-checkout: '${{ inputs.sparse-checkout }}'
-        sparse-checkout-cone-mode: '${{ inputs.sparse-checkout-cone-mode }}'
+        token: ${{ inputs.token }}
+        ref: ${{ steps.check-branch.outputs.branch }}
+        repository: ${{ inputs.repository }}
+        path: ${{ inputs.path }}
+        sparse-checkout: ${{ inputs.sparse-checkout }}
+        sparse-checkout-cone-mode: ${{ inputs.sparse-checkout-cone-mode }}
