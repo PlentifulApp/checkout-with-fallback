@@ -30,7 +30,7 @@ runs:
             echo "branch=${{ inputs.ref-fallback }}" >> $GITHUB_OUTPUT
           else
             echo "Using default branch"
-            echo "branch=" >> $GITHUB_OUTPUT
+            echo "branch=$(git remote show origin | grep 'HEAD branch' | cut -d':' -f2 | tr -d ' ')" >> $GITHUB_OUTPUT
           fi
         fi
     - name: Checkout the determined branch
