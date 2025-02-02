@@ -16,6 +16,12 @@ inputs:
   ref-fallback:
     description: "The branch name to check out if ref-if-exists does not exist. Defaults to the repository's default branch if not specified."
     required: false
+  sparse-checkout:
+    description: 'Whether to use sparse checkout. Passed without changes to actions/checkout.'
+    required: false
+  sparse-checkout-cone-mode:
+    description: 'Whether to use sparse checkout in cone mode. Passed without changes to actions/checkout.'
+    required: false
 runs:
   using: 'composite'
   steps:
@@ -43,3 +49,5 @@ runs:
         ref: '${{ steps.check-branch.outputs.branch }}'
         repository: '${{ inputs.repository }}'
         path: '${{ inputs.path }}'
+        sparse-checkout: '${{ inputs.sparse-checkout }}'
+        sparse-checkout-cone-mode: '${{ inputs.sparse-checkout-cone-mode }}'
